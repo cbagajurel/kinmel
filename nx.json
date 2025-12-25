@@ -14,7 +14,7 @@
     ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
-  "nxCloudId": "694d23b46ca6f96e85c33f59",
+  "nxCloudId": "694d242e1681f158d4f4a626",
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
@@ -41,7 +41,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/auth-service-e2e/**/*"]
+      "exclude": ["apps/auth-service-e2e/**/*", "apps/api-gateway-e2e/**/*"]
     },
     {
       "plugin": "@nx/docker",
@@ -52,6 +52,17 @@
         "runTarget": {
           "name": "docker:run"
         }
+      }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps",
+        "serveStaticTargetName": "serve-static"
       }
     }
   ],
