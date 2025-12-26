@@ -110,6 +110,7 @@
     }
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "swagger-ui": "^5.31.0"
   }
 }
