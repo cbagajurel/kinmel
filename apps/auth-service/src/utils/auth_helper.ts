@@ -9,7 +9,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const validateRegistrationData = (
   data: any,
   userType: 'user' | 'seller',
-) => {
+): ValidationError | null => {
   const { name, email, password, phone_number, country } = data;
 
   if (
@@ -24,6 +24,8 @@ export const validateRegistrationData = (
   if (!emailRegex.test(email)) {
     return new ValidationError(`Invalid Email format`);
   }
+
+  return null;
 };
 
 export const checkOtpRestriction = async (
