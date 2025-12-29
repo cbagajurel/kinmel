@@ -11,6 +11,7 @@ app.use(
   cors({
     origin: ['http://localhost:3000'],
     allowedHeaders: ['Authorization', 'Content-Type'],
+    credentials: true,
   }),
 );
 
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use(cookieParser());
 app.set('trust proxy', 1);
 
+// limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: (req: any) => (req.user ? 1000 : 100),
@@ -29,11 +31,15 @@ const limiter = rateLimit({
 
   standardHeaders: true,
   legacyHeaders: true,
-  keyGenerator: (req: any) => req.ip,
+  keyGenerator: (req: any) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    return ip.replace(/:\d+[^:]*$/, '');
+  },
 });
 
 app.use(limiter);
 
+// Index api
 app.get('/api', (req, res) => {
   res.send({ message: 'Welcome to api-gateway!' });
 });

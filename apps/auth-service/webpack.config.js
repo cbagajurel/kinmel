@@ -15,6 +15,11 @@ module.exports = {
       '@error-handler': resolve(__dirname, '../../packages/error-handler'),
       '@lib': resolve(__dirname, '../../packages/lib'),
     },
+    extensions: [".ts", ".js"]
+  },
+  externals: {
+    '@prisma/client': 'commonjs @prisma/client',
+    '.prisma/client': 'commonjs .prisma/client'
   },
   plugins: [
     new NxAppWebpackPlugin({

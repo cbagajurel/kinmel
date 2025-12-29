@@ -1,15 +1,14 @@
 import crypto from 'crypto';
-import { ValidationError } from '../../../../packages/error-handler';
-import { redisClient } from '../../../../packages/lib/redis';
+import { ValidationError } from '@packages/error-handler';
+import { redisClient } from '@packages/lib/redis';
 import { sendEmail } from './sendMail';
-import { NextFunction } from 'express';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const validateRegistrationData = (
   data: any,
   userType: 'user' | 'seller',
-): ValidationError | null => {
+): void => {
   const { name, email, password, phone_number, country } = data;
 
   if (
@@ -18,44 +17,35 @@ export const validateRegistrationData = (
     !password ||
     (userType === 'seller' && (!phone_number || !country))
   ) {
-    return new ValidationError(`Missing required fields`);
+    throw new ValidationError(`Missing required fields`);
   }
 
   if (!emailRegex.test(email)) {
-    return new ValidationError(`Invalid Email format`);
+    throw new ValidationError(`Invalid Email format`);
   }
-
-  return null;
 };
 
-export const checkOtpRestriction = async (
-  email: string,
-  next: NextFunction,
-) => {
+export const checkOtpRestriction = async (email: string): Promise<void> => {
   if (await redisClient.get(`otp_lock:${email}`)) {
-    return next(
-      new ValidationError(
-        'Account locked due to multiple failed attempts! Try again after 30 minutes',
-      ),
+    throw new ValidationError(
+      'Account locked due to multiple failed attempts! Try again after 30 minutes',
     );
   }
 
   if (await redisClient.get(`otp_spam_lock:${email}`)) {
-    return next(
-      new ValidationError(
-        'Too many OTP requests! Please wait 1hour before requesting again.',
-      ),
+    throw new ValidationError(
+      'Too many OTP requests! Please wait 1hour before requesting again.',
     );
   }
 
   if (await redisClient.get(`otp_cooldown:${email}`)) {
-    return next(
-      new ValidationError('Please wait 1minute before requesting a new OTP'),
+    throw new ValidationError(
+      'Please wait 1minute before requesting a new OTP',
     );
   }
 };
 
-export const trackOtpRequests = async (email: string, next: NextFunction) => {
+export const trackOtpRequests = async (email: string): Promise<void> => {
   const otpRequestKey = `otp_request_count:${email}`;
   const otpRequests = parseInt((await redisClient.get(otpRequestKey)) || '0');
   if (otpRequests >= 2) {
@@ -65,10 +55,8 @@ export const trackOtpRequests = async (email: string, next: NextFunction) => {
       'EX',
       3600, //1hr
     );
-    return next(
-      new ValidationError(
-        'Too many OTP requests. Please wait 1 hour before requesting again.',
-      ),
+    throw new ValidationError(
+      'Too many OTP requests. Please wait 1 hour before requesting again.',
     );
   }
 
