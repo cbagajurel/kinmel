@@ -28,13 +28,8 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: (req: any) => (req.user ? 1000 : 100),
   message: { error: 'Too many requests, please Try again' },
-
   standardHeaders: true,
   legacyHeaders: true,
-  keyGenerator: (req: any) => {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    return ip.replace(/:\d+[^:]*$/, '');
-  },
 });
 
 app.use(limiter);

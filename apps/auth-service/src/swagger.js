@@ -8,6 +8,7 @@ const doc = {
         version: "1.0.0",
     },
     host: "localhost:6001",
+    basePath: "/api",
     schemes: ["http"],
 
 

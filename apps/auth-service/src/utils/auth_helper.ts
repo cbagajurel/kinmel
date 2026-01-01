@@ -9,12 +9,11 @@ export const validateRegistrationData = (
   data: any,
   userType: 'user' | 'seller',
 ): void => {
-  const { name, email, password, phone_number, country } = data;
+  const { name, email, phone_number, country } = data;
 
   if (
     !name ||
     !email ||
-    !password ||
     (userType === 'seller' && (!phone_number || !country))
   ) {
     throw new ValidationError(`Missing required fields`);
@@ -22,6 +21,22 @@ export const validateRegistrationData = (
 
   if (!emailRegex.test(email)) {
     throw new ValidationError(`Invalid Email format`);
+  }
+};
+
+export const validateVerificationData = (data: any): void => {
+  const { name, email, password, otp } = data;
+
+  if (!name || !email || !password || !otp) {
+    throw new ValidationError(`Missing required fields for verification`);
+  }
+
+  if (!emailRegex.test(email)) {
+    throw new ValidationError(`Invalid Email format`);
+  }
+
+  if (password.length < 6) {
+    throw new ValidationError(`Password must be at least 6 characters`);
   }
 };
 
@@ -84,4 +99,36 @@ export const sendOtp = async (
     'EX',
     60, // 1 minute
   );
+};
+
+// verify otp
+
+export const verifyOtp = async (email: string, otp: string): Promise<void> => {
+  const storedOtp = await redisClient.get(`otp:${email}`);
+
+  if (!storedOtp) {
+    throw new ValidationError('Invalid or expired OTP!');
+  }
+
+  const failedAttemptsKey = `otp_attempts:${email}`;
+  const failedAttempts = parseInt(
+    (await redisClient.get(failedAttemptsKey)) || '0',
+  );
+
+  if (storedOtp !== otp) {
+    if (failedAttempts >= 2) {
+      await redisClient.set(`otp_lock:${email}`, 'locked', 'EX', 1800);
+      await redisClient.del(`otp:${email}`, failedAttemptsKey);
+      throw new ValidationError(
+        'Too many failed attempts. Your account is locked for 30 minutes',
+      );
+    }
+
+    await redisClient.set(failedAttemptsKey, failedAttempts + 1, 'EX', 300);
+    throw new ValidationError(
+      `Incorrect OTP. ${2 - failedAttempts} attempts left.`,
+    );
+  }
+
+  await redisClient.del(`otp:${email}`, failedAttemptsKey);
 };
