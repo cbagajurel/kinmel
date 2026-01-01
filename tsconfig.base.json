@@ -17,9 +17,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
+    "customConditions": ["@kinmel/source"],
     "paths": {
       "@packages/*": ["packages/*"]
-    },
-    "customConditions": ["@kinmel/source"]
+    }
   }
 }

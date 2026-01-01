@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   namespace globalThis {
@@ -6,8 +6,8 @@ declare global {
   }
 }
 
-const prisma = new PrismaClient();
+const prismaClient = new PrismaClient();
 
-if (process.env.NODE_ENV === 'production') global.prismadb = prisma;
+if (process.env.NODE_ENV === "production") global.prismadb = prismaClient;
 
-export default prisma;
+export default prismaClient;

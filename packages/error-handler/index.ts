@@ -7,7 +7,7 @@ export class AppError extends Error {
     message: string,
     statusCode: number,
     isOperational = true,
-    details?: any,
+    details?: any
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -19,19 +19,37 @@ export class AppError extends Error {
 }
 
 export class NotFoundError extends AppError {
-  constructor(message = 'Resources not found') {
+  constructor(message = "Resources not found") {
     super(message, 404);
   }
 }
 
 export class ValidationError extends AppError {
-  constructor(message = 'Invalid request data', details?: any) {
+  constructor(message = "Invalid request data", details?: any) {
     super(message, 400, true, details);
   }
 }
 
 export class AuthError extends AppError {
-  constructor(message = 'Unauthorizes') {
+  constructor(message = "Unauthorizes") {
     super(message, 401);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message = "Forbidden access") {
+    super(message, 403);
+  }
+}
+
+export class DatabaseError extends AppError {
+  constructor(message = "Database error", details?: any) {
+    super(message, 403, details);
+  }
+}
+
+export class RateLimitError extends AppError {
+  constructor(message = "Too many requests, please try again later") {
+    super(message, 429);
   }
 }

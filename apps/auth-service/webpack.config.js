@@ -2,36 +2,31 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join, resolve } = require('path');
 
 module.exports = {
-  output: {
-    path: join(__dirname, 'dist'),
-    clean: true,
-    ...(process.env.NODE_ENV !== 'production' && {
-      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
-    }),
-  },
-  resolve: {
-    alias: {
-      '@packages': resolve(__dirname, '../../packages'),
-      '@error-handler': resolve(__dirname, '../../packages/error-handler'),
-      '@lib': resolve(__dirname, '../../packages/lib'),
+    output: {
+        path: join(__dirname, 'dist'),
+        clean: true,
+        ...(process.env.NODE_ENV !== 'production' && {
+            devtoolModuleFilenameTemplate: '[absolute-resource-path]',
+        }),
     },
-    extensions: [".ts", ".js"]
-  },
-  externals: {
-    '@prisma/client': 'commonjs @prisma/client',
-    '.prisma/client': 'commonjs .prisma/client'
-  },
-  plugins: [
-    new NxAppWebpackPlugin({
-      target: 'node',
-      compiler: 'tsc',
-      main: './src/main.ts',
-      tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
-      optimization: false,
-      outputHashing: 'none',
-      generatePackageJson: false,
-      sourceMap: true,
-    }),
-  ],
+
+    resolve: {
+        alias: {
+            "@packages": resolve(__dirname, "../../packages")
+        },
+        extensions: [".ts", ".js"]
+    },
+    plugins: [
+        new NxAppWebpackPlugin({
+            target: 'node',
+            compiler: 'tsc',
+            main: './src/main.ts',
+            tsConfig: './tsconfig.app.json',
+            assets: [],
+            optimization: false,
+            outputHashing: 'none',
+            generatePackageJson: false,
+            sourceMap: true,
+        })
+    ],
 };

@@ -6,65 +6,11 @@
     "dev": "node src/main.ts"
   },
   "nx": {
+    "name": "@kinmel/auth-service",
+    "projectType": "application",
+    "sourceRoot": "@kinmel/auth-service/src",
     "targets": {
-      "build": {
-        "executor": "@nx/webpack:webpack",
-        "outputs": ["{options.outputPath}"],
-        "defaultConfiguration": "production",
-        "options": {
-          "target": "node",
-          "compiler": "tsc",
-          "outputPath": "apps/auth-service/dist",
-          "main": "apps/auth-service/src/main.ts",
-          "tsConfig": "apps/auth-service/tsconfig.app.json",
-          "webpackConfig": "apps/auth-service/webpack.config.js",
-          "assets": ["apps/auth-service/src/assets"]
-        },
-        "configurations": {
-          "development": {},
-          "production": {
-            "optimization": true,
-            "extractLicenses": true,
-            "generateLockfile": true
-          }
-        }
-      },
-      "prune-lockfile": {
-        "dependsOn": [
-          "build"
-        ],
-        "cache": true,
-        "executor": "@nx/js:prune-lockfile",
-        "outputs": [
-          "{workspaceRoot}/apps/auth-service/dist/package.json",
-          "{workspaceRoot}/apps/auth-service/dist/package-lock.json"
-        ],
-        "options": {
-          "buildTarget": "build"
-        }
-      },
-      "copy-workspace-modules": {
-        "dependsOn": [
-          "build"
-        ],
-        "cache": true,
-        "outputs": [
-          "{workspaceRoot}/apps/auth-service/dist/workspace_modules"
-        ],
-        "executor": "@nx/js:copy-workspace-modules",
-        "options": {
-          "buildTarget": "build"
-        }
-      },
-      "prune": {
-        "dependsOn": [
-          "prune-lockfile",
-          "copy-workspace-modules"
-        ],
-        "executor": "nx:noop"
-      },
       "serve": {
-        "continuous": true,
         "executor": "@nx/js:node",
         "defaultConfiguration": "development",
         "dependsOn": [
@@ -87,17 +33,7 @@
         "options": {
           "passWithNoTests": true
         }
-      },
-      "docker:build": {
-        "dependsOn": [
-          "build",
-          "prune"
-        ]
       }
     }
-  },
-  "dependencies": {
-    "express": "^4.21.2",
-    "swagger-ui": "^5.31.0"
   }
 }
