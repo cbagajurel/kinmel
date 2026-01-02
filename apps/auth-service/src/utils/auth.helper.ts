@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction } from "express";
 import crypto from "crypto";
 import { ValidationError } from "@packages/error-handler";
 import { redisClient } from "@packages/lib/redis";
@@ -142,55 +142,44 @@ export const verifyOtp = async (
 // Handle forgot password
 
 export const handleForgotPassword = async (
-  req: Request,
-  res: Response,
+  email: string,
   next: NextFunction,
   userType: "user" | "seller"
 ) => {
-  try {
-    const { email } = req.body;
+  if (!email) throw new ValidationError("Email is required!");
 
-    if (!email) throw new ValidationError("Email is required!");
+  const user =
+    userType === "user"
+      ? await prismaClient.users.findUnique({ where: { email } })
+      : null;
 
-    const user =
-      userType === "user" &&
-      (await prismaClient.users.findUnique({ where: { email } }));
+  if (!user) throw new ValidationError(`${userType} not found!`);
 
-    if (!user) throw new ValidationError(`${userType} not found!`);
+  await checkOtpRestriction(email, next);
+  await trackOtpRequests(email, next);
 
-    //check otp restrictions
-    await checkOtpRestriction(email, next);
-    await trackOtpRequests(email, next);
-
-    // Send Otp
-    await sendOtp(email, user.name, "forget-password-user-email");
-    res
-      .status(200)
-      .json({ message: "OTP sent to email. Please Verify your account" });
-  } catch (error) {
-    next(error);
-  }
+  await sendOtp(user.name, email, "forget-password-user-email");
 };
 
 // Verify user forgot password otp
 
 export const verifyUserForgotPasswordOtp = async (
-  req: Request,
-  res: Response,
+  email: string,
+  otp: string,
   next: NextFunction
 ) => {
-  try {
-    const { email, otp } = req.body;
+  if (!email || !otp) throw new ValidationError("Email and OTP are required!");
 
-    if (!email || !otp)
-      throw new ValidationError("Email and OTP are required!");
+  await verifyOtp(email, otp, next);
 
-    await verifyOtp(email, otp, next);
+  const resetToken = crypto.randomBytes(32).toString("hex");
 
-    res
-      .status(200)
-      .json({ message: "OTP verified. You can now reset your password." });
-  } catch (error) {
-    next(error);
-  }
+  await redisClient.set(
+    `password_reset_token:${email}`,
+    resetToken,
+    "EX",
+    900 // 15 minutes
+  );
+
+  return resetToken;
 };

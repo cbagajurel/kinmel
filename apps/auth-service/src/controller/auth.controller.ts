@@ -14,6 +14,7 @@ import bycript from "bcryptjs";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
+import { redisClient } from "@packages/lib/redis";
 
 // User Registration
 export const userRegistration = async (
@@ -139,7 +140,16 @@ export const userForgotPassword = async (
   res: Response,
   next: NextFunction
 ) => {
-  await handleForgotPassword(req, res, next, "user");
+  try {
+    const { email } = req.body;
+    await handleForgotPassword(email, next, "user");
+
+    res
+      .status(200)
+      .json({ message: "OTP sent to email. Please verify your account." });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // verify forgot password OTP
@@ -148,7 +158,17 @@ export const verifyUserForgotPassword = async (
   res: Response,
   next: NextFunction
 ) => {
-  await verifyUserForgotPasswordOtp(req, res, next);
+  try {
+    const { email, otp } = req.body;
+    const resetToken = await verifyUserForgotPasswordOtp(email, otp, next);
+
+    res.status(200).json({
+      message: "OTP verified. You can now reset your password.",
+      resetToken,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Reset User Password
@@ -158,15 +178,28 @@ export const resetUserPassword = async (
   next: NextFunction
 ) => {
   try {
-    const { email, newPassword } = req.body;
+    const { email, newPassword, resetToken } = req.body;
 
-    if (!email || !newPassword)
-      return next(new ValidationError("Email and new password are required!"));
+    if (!email || !newPassword || !resetToken)
+      return next(
+        new ValidationError(
+          "Email, new password, and reset token are required!"
+        )
+      );
+
+    const storedToken = await redisClient.get(`password_reset_token:${email}`);
+
+    if (!storedToken || storedToken !== resetToken) {
+      return next(
+        new ValidationError(
+          "Invalid or expired reset token! Please request a new password reset."
+        )
+      );
+    }
 
     const user = await prismaClient.users.findUnique({ where: { email } });
     if (!user) return next(new ValidationError("User not found!"));
 
-    // compare new password with existing one
     const isSamePassword = await bcrypt.compare(newPassword, user.password!);
 
     if (isSamePassword) {
@@ -184,6 +217,9 @@ export const resetUserPassword = async (
       where: { email },
       data: { password: hashedPassword },
     });
+
+    // Delete the reset token (one-time use only)
+    await redisClient.del(`password_reset_token:${email}`);
 
     res.status(200).json({ message: "Password reset successfully!" });
   } catch (error) {
