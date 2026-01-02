@@ -1,10 +1,13 @@
 {
+  "nxCloudAccessToken": null,
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default"
+    }
+  },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -35,10 +38,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": [
-        "apps/auth-service-e2e/**/*",
-        "apps/api-gateway-e2e/**/*"
-      ]
+      "exclude": ["apps/auth-service-e2e/**/*", "apps/api-gateway-e2e/**/*"]
     },
     {
       "plugin": "@nx/docker",
@@ -66,18 +66,11 @@
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     }
   }
 }
