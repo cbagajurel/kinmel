@@ -138,7 +138,9 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="bg-[#f1f1f1] py-10 w-full min-h-[85vh]">
-      <h1 className="font-poppins font-semibold text-3xl text-center">Login</h1>
+      <h1 className="font-poppins font-semibold text-3xl text-center">
+        Forgot Password
+      </h1>
       <p className="py-3 font-medium text-[#00000099] text-sm text-center">
         Home . Forgot Password
       </p>
@@ -179,7 +181,9 @@ const ForgotPasswordPage = () => {
                   className="bg-blue-600 py-2 rounded-sm w-full text-white text-sm cursor-pointer"
                   onClick={() => {}}
                 >
-                  {requestOtpMutations.isPending ? "Loggin in ... " : "Login"}
+                  {requestOtpMutations.isPending
+                    ? "Continuing ... "
+                    : "Continue"}
                 </button>
                 {serverError && (
                   <p className="mt-2 text-red-500 text-sm">{serverError}</p>
@@ -247,6 +251,7 @@ const ForgotPasswordPage = () => {
                   <Input<FormDataType>
                     name="password"
                     label="New Password"
+                    showPasswordToggle={passwordVisible}
                     type={passwordVisible ? "text" : "password"}
                     placeholder="Enter New Password"
                     register={register}
