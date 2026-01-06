@@ -1,6 +1,7 @@
 import Header from "../components";
-import "./global.css";
 import { Poppins, Roboto } from "next/font/google";
+import "./global.css";
+import Providers from "./Providers";
 
 export const metadata = {
   title: "Kinmel",
@@ -27,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} ${poppins.variable}`}>
-        <Header />
+        <Providers>
+          <Header />
 
-        {children}
+          {children}
+        </Providers>
       </body>
     </html>
   );
