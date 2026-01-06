@@ -116,7 +116,7 @@ const LoginPage = () => {
                 Remember Me
               </label>
               <Link
-                href={"/forget-password"}
+                href={"/forgot-password"}
                 className="text-blue-600 text-sm hover:underline"
               >
                 Forgot Password

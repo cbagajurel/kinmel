@@ -7,11 +7,15 @@ import { FormDataType } from "../global";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import CustomButton from "apps/user-panel/src/components/ui/button";
 
 const ForgotPasswordPage = () => {
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
   const [step, setStep] = useState<"email" | "otp" | "reset">("email");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const [canResend, setCanResend] = useState(true);
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -63,7 +67,8 @@ const ForgotPasswordPage = () => {
       );
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setResetToken(data.resetToken);
       setStep("reset");
       setServerError(null);
     },
@@ -97,10 +102,10 @@ const ForgotPasswordPage = () => {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ password }: { password: string }) => {
-      if (!password) return;
+      if (!password || !resetToken) return;
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/reset-user-password`,
-        { email: userEmail, newPassowrd: password }
+        { email: userEmail, newPassword: password, resetToken }
       );
 
       return response.data;
@@ -110,6 +115,7 @@ const ForgotPasswordPage = () => {
       toast.success(
         "password reset Successfully! Please login with your new password"
       );
+      router.push("/login");
     },
     onError: (error: AxiosError) => {
       const errorMessage =
@@ -120,13 +126,15 @@ const ForgotPasswordPage = () => {
     },
   });
 
+  const resendOtp = () => {
+    resendOtp();
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataType>();
-
-  const onSubmit = async (data: FormDataType) => {};
 
   return (
     <div className="bg-[#f1f1f1] py-10 w-full min-h-[85vh]">
@@ -172,6 +180,95 @@ const ForgotPasswordPage = () => {
                   onClick={() => {}}
                 >
                   {requestOtpMutations.isPending ? "Loggin in ... " : "Login"}
+                </button>
+                {serverError && (
+                  <p className="mt-2 text-red-500 text-sm">{serverError}</p>
+                )}
+              </form>
+            </>
+          )}
+
+          {step === "otp" && (
+            <div>
+              <h3 className="mb-4 font-semibold text-xl text-center">
+                Enter Otp
+              </h3>
+              <div className="flex justify-center gap-6">
+                {otp?.map((digit, index) => (
+                  <input
+                    type="text"
+                    key={index}
+                    ref={(el) => {
+                      if (el) inputRefs.current[index] = el;
+                    }}
+                    maxLength={1}
+                    className="border border-gray-300 rounded-md outline-none w-12 h-12 text-center"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                  />
+                ))}
+              </div>
+              <CustomButton
+                disabled={verifyOtpMutation.isPending}
+                onClick={() => verifyOtpMutation.mutate()}
+                label={verifyOtpMutation.isPending ? "Verifying" : "Verify OTP"}
+                className="mt-8"
+              />
+              {canResend ? (
+                <div
+                  onClick={resendOtp}
+                  className="flex justify-center items-center mt-3 text-blue-600 text-sm hover:underline hover:cursor-pointer"
+                >
+                  <span> Resend OTP</span>
+                </div>
+              ) : (
+                <p className="mt-3 text-gray-500 text-sm text-center">
+                  Resend OTP in {timer}s
+                </p>
+              )}
+              {verifyOtpMutation?.isError &&
+                verifyOtpMutation.error instanceof AxiosError && (
+                  <p className="mt-2 text-red-500 text-sm">
+                    {verifyOtpMutation.error.response?.data?.message ||
+                      verifyOtpMutation.error.message}
+                  </p>
+                )}
+            </div>
+          )}
+
+          {step === "reset" && (
+            <>
+              <h3 className="mb-4 font-semibold text-xl text-center">
+                Reset Password
+              </h3>
+              <form onSubmit={handleSubmit(onSubmitPassword)}>
+                <div className="relative">
+                  <Input<FormDataType>
+                    name="password"
+                    label="New Password"
+                    type={passwordVisible ? "text" : "password"}
+                    placeholder="Enter New Password"
+                    register={register}
+                    errors={errors}
+                    rules={{
+                      required: "Password is required!",
+                      minLength: {
+                        value: 6,
+                        message: "password must be at least 6 characters",
+                      },
+                    }}
+                  />
+                </div>
+
+                <button
+                  disabled={resetPasswordMutation.isPending}
+                  type="submit"
+                  className="bg-blue-600 mt-4 py-2 rounded-sm w-full text-white text-sm cursor-pointer"
+                >
+                  {resetPasswordMutation.isPending
+                    ? "Resetting....."
+                    : "Reset Password"}
                 </button>
                 {serverError && (
                   <p className="mt-2 text-red-500 text-sm">{serverError}</p>

@@ -49,7 +49,6 @@ export const userRegistration = async (
 };
 
 // Verify User with OTP
-
 export const verifyUser = async (
   req: Request,
   res: Response,
@@ -134,7 +133,6 @@ export const loginUser = async (
 };
 
 //Forgot Password
-
 export const userForgotPassword = async (
   req: Request,
   res: Response,
