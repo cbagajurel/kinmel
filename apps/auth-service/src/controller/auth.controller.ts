@@ -168,6 +168,7 @@ export const refreshToken = async (
     );
 
     setCookie(res, "access_token", newAsccessToken);
+
     return res.status(201).json({ success: true });
   } catch (error) {
     next(error);
