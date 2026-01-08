@@ -14,6 +14,9 @@
     },
     {
       "path": "./apps/user-panel"
+    },
+    {
+      "path": "./apps/seller-panel"
     }
   ]
 }

@@ -1,9 +1,13 @@
+"use client";
+
 import { HeartIcon, Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import HeaderBottom from "./header-bottom";
+import { useUser } from "../hooks/useUser";
 
 const Header = () => {
+  const { user, isLoading } = useUser();
   return (
     <div className="bg-white min-w-full">
       <div className="flex justify-between items-center m-auto py-5 w-[80%]">
@@ -24,18 +28,37 @@ const Header = () => {
         </div>
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-4">
-            <Link
-              href={"/login"}
-              className="flex justify-center items-center border-[#010f1c1a] border-2 rounded-full w-[50px] h-[50px]"
-            >
-              <User />
-            </Link>
-            <Link href={"/login"}>
-              <span className="block font-medium text-sm">Hello,</span>
-              <span className="font-semibold text-md hover:underline">
-                Sign In
-              </span>
-            </Link>
+            {!isLoading && user ? (
+              <>
+                <Link
+                  href={"/profile"}
+                  className="flex justify-center items-center border-[#010f1c1a] border-2 rounded-full w-[50px] h-[50px]"
+                >
+                  <User />
+                </Link>
+                <Link href={"/profile"}>
+                  <span className="block font-medium text-sm">Hello,</span>
+                  <span className="font-semibold text-md hover:underline">
+                    {user?.name?.split(" ")[0]}
+                  </span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={"/login"}
+                  className="flex justify-center items-center border-[#010f1c1a] border-2 rounded-full w-[50px] h-[50px]"
+                >
+                  <User />
+                </Link>
+                <Link href={"/login"}>
+                  <span className="block font-medium text-sm">Hello,</span>
+                  <span className="font-semibold text-md hover:underline">
+                    {isLoading ? "......." : "Sign In"}
+                  </span>
+                </Link>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-5">
             <Link href={"/wishlist"} className="relative">

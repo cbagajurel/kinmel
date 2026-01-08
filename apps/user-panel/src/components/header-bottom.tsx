@@ -1,10 +1,18 @@
 "use client";
-import { AlignLeft, ChevronDown } from "lucide-react";
+import {
+  AlignLeft,
+  ChevronDown,
+  HeartIcon,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { navItems, type NavItemTypes } from "../config/constants";
+import { useUser } from "../hooks/useUser";
 
 const HeaderBottom = () => {
+  const { user, isLoading } = useUser();
   const [show, setShow] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
 
@@ -64,6 +72,59 @@ const HeaderBottom = () => {
             </Link>
           ))}
         </div>
+      </div>
+      <div>
+        {isSticky && (
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4">
+              {!isLoading && user ? (
+                <>
+                  <Link
+                    href={"/profile"}
+                    className="flex justify-center items-center border-[#010f1c1a] border-2 rounded-full w-[50px] h-[50px]"
+                  >
+                    <User />
+                  </Link>
+                  <Link href={"/profile"}>
+                    <span className="block font-medium text-sm">Hello,</span>
+                    <span className="font-semibold text-md hover:underline">
+                      {user?.name?.split(" ")[0]}
+                    </span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href={"/login"}
+                    className="flex justify-center items-center border-[#010f1c1a] border-2 rounded-full w-[50px] h-[50px]"
+                  >
+                    <User />
+                  </Link>
+                  <Link href={"/login"}>
+                    <span className="block font-medium text-sm">Hello,</span>
+                    <span className="font-semibold text-md hover:underline">
+                      {isLoading ? "......." : "Sign In"}
+                    </span>
+                  </Link>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-5">
+              <Link href={"/wishlist"} className="relative">
+                <HeartIcon />
+                <div className="top-[-10px] right-[-10px] absolute flex justify-center items-center bg-red-500 border-3 border-white rounded-full w-6 h-6">
+                  <span className="font-medium text-white text-sm">0</span>
+                </div>
+              </Link>
+              <Link href={"/cart"} className="relative">
+                <ShoppingCart />
+                <div className="top-[-10px] right-[-10px] absolute flex justify-center items-center bg-red-500 border-3 border-white rounded-full w-6 h-6">
+                  <span className="font-medium text-white text-sm">0</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
