@@ -1,12 +1,11 @@
 "use client";
-import Input from "apps/user-panel/src/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FormDataType } from "../global";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import { FormDataType, Input } from "@/app/shared";
 
 const LoginPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
