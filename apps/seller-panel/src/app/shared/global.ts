@@ -1,8 +1,8 @@
 export type FormDataType = {
-  name: string;
-  email: string;
-  password: string;
-  otp: string[];
-  phone: number;
-  country: any;
+  name?: string;
+  email?: string;
+  password?: string;
+  otp?: string[];
+  phone_number?: string;
+  country?: string;
 };

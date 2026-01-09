@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset Your Password - Kinmel</title>
+  <title>Verify Your Seller Account - Kinmel</title>
   <style>
     * {
       margin: 0;
@@ -29,7 +29,7 @@
     }
 
     .header {
-      background-color: #1d4ed8;
+      background-color: #1e40af;
       padding: 24px 20px;
       text-align: center;
     }
@@ -39,6 +39,13 @@
       font-size: 28px;
       font-weight: 600;
       letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      color: #dbeafe;
+      font-size: 14px;
+      font-weight: 500;
     }
 
     .content {
@@ -80,7 +87,7 @@
     .otp-code {
       font-size: 36px;
       font-weight: 700;
-      color: #1d4ed8;
+      color: #1e40af;
       letter-spacing: 6px;
       font-family: 'Courier New', Courier, monospace;
       padding: 8px 0;
@@ -90,21 +97,6 @@
       font-size: 13px;
       color: #6b7280;
       margin-top: 12px;
-    }
-
-    .alert-box {
-      background-color: #fee2e2;
-      border-left: 3px solid #ef4444;
-      padding: 12px 16px;
-      margin: 20px 0;
-      border-radius: 4px;
-    }
-
-    .alert-box p {
-      color: #991b1b;
-      font-size: 13px;
-      line-height: 1.5;
-      margin: 0;
     }
 
     .info-box {
@@ -117,6 +109,21 @@
 
     .info-box p {
       color: #92400e;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .seller-badge {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 20px 0;
+    }
+
+    .seller-badge p {
+      color: #1e40af;
       font-size: 13px;
       line-height: 1.5;
       margin: 0;
@@ -136,7 +143,7 @@
     }
 
     .footer a {
-      color: #1d4ed8;
+      color: #1e40af;
       text-decoration: none;
     }
 
@@ -156,7 +163,7 @@
     }
 
     .links a:hover {
-      color: #1d4ed8;
+      color: #1e40af;
     }
 
     .copyright {
@@ -187,6 +194,7 @@
     <!-- Header -->
     <div class="header">
       <h1>Kinmel</h1>
+      <p>Seller Central</p>
     </div>
 
     <!-- Content -->
@@ -194,46 +202,50 @@
       <p class="greeting">Hi <%= name %>,</p>
 
       <p class="message">
-        We received a request to reset your password. Use the code below to reset your password and regain access to your account.
+        Welcome to Kinmel Seller Central! Please verify your email address to complete your seller account registration.
       </p>
 
       <!-- OTP Box -->
       <div class="otp-container">
-        <div class="otp-label">Password Reset Code</div>
-        <div class="otp-code"><%= otp %></div>
+        <div class="otp-label">Verification Code</div>
+        <div class="otp-code">
+          <%= otp %>
+        </div>
         <div class="expiry-notice">Expires in 5 minutes</div>
       </div>
 
       <p class="message">
-        Enter this code on the password reset page to create a new password.
+        Enter this code on the verification page to activate your seller account and start listing your products.
       </p>
 
-      <!-- Alert Notice -->
-      <div class="alert-box">
+      <!-- Seller Info -->
+      <div class="seller-badge">
         <p>
-          <strong>Didn't request this?</strong> If you didn't ask to reset your password, please ignore this email and your password will remain unchanged. Consider changing your password if you suspect unauthorized access.
+          <strong>Next steps:</strong> After verification, you'll be able to set up your shop, add products, and start
+          selling on Kinmel.
         </p>
       </div>
 
       <!-- Security Notice -->
       <div class="info-box">
         <p>
-          <strong>Security tip:</strong> Never share this code with anyone. Kinmel will never ask for your reset code or password.
+          <strong>Security tip:</strong> Never share this code with anyone. Kinmel will never ask for your verification
+          code.
         </p>
       </div>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-      <p><strong>Kinmel</strong></p>
-      <p>Questions? Contact us at <a href="mailto:support@kinmel.com">support@kinmel.com</a></p>
+      <p><strong>Kinmel Seller Support</strong></p>
+      <p>Questions? Contact us at <a href="mailto:seller-support@kinmel.com">seller-support@kinmel.com</a></p>
 
       <div class="links">
-        <a href="#">Privacy Policy</a>
+        <a href="#">Seller Policy</a>
         <span style="color: #d1d5db;">|</span>
         <a href="#">Terms of Service</a>
         <span style="color: #d1d5db;">|</span>
-        <a href="#">Help Center</a>
+        <a href="#">Seller Help Center</a>
       </div>
 
       <p class="copyright">

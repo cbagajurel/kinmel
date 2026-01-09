@@ -14,138 +14,154 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      background-color: #f4f4f4;
-      padding: 20px;
+      line-height: 1.5;
+      background-color: #f5f5f5;
+      padding: 20px 10px;
     }
 
     .email-container {
       max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 20px;
+      background-color: #1d4ed8;
+      padding: 24px 20px;
       text-align: center;
     }
 
     .header h1 {
       color: #ffffff;
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .header p {
-      color: #e0e7ff;
-      font-size: 16px;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
     }
 
     .content {
-      padding: 40px 30px;
+      padding: 32px 24px;
     }
 
     .greeting {
-      font-size: 18px;
-      color: #333333;
-      margin-bottom: 20px;
+      font-size: 16px;
+      color: #111827;
+      margin-bottom: 16px;
+      font-weight: 500;
     }
 
     .message {
-      font-size: 16px;
-      color: #666666;
-      margin-bottom: 30px;
-      line-height: 1.8;
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 20px;
+      line-height: 1.6;
     }
 
     .otp-container {
-      background-color: #f8f9fa;
-      border: 2px dashed #667eea;
+      background-color: #f9fafb;
+      border: 2px solid #e5e7eb;
       border-radius: 8px;
-      padding: 30px;
+      padding: 24px;
       text-align: center;
-      margin: 30px 0;
+      margin: 24px 0;
     }
 
     .otp-label {
-      font-size: 14px;
-      color: #666666;
+      font-size: 12px;
+      color: #6b7280;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      font-weight: 600;
     }
 
     .otp-code {
-      font-size: 48px;
+      font-size: 36px;
       font-weight: 700;
-      color: #667eea;
-      letter-spacing: 8px;
-      font-family: 'Courier New', monospace;
+      color: #1d4ed8;
+      letter-spacing: 6px;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 8px 0;
     }
 
     .expiry-notice {
-      font-size: 14px;
-      color: #888888;
-      margin-top: 15px;
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 12px;
     }
 
-    .warning {
-      background-color: #fff3cd;
-      border-left: 4px solid #ffc107;
-      padding: 15px;
-      margin: 25px 0;
+    .info-box {
+      background-color: #fef3c7;
+      border-left: 3px solid #f59e0b;
+      padding: 12px 16px;
+      margin: 20px 0;
       border-radius: 4px;
     }
 
-    .warning p {
-      color: #856404;
-      font-size: 14px;
+    .info-box p {
+      color: #92400e;
+      font-size: 13px;
+      line-height: 1.5;
       margin: 0;
     }
 
     .footer {
-      background-color: #f8f9fa;
-      padding: 30px;
+      background-color: #f9fafb;
+      padding: 24px;
       text-align: center;
-      border-top: 1px solid #e9ecef;
+      border-top: 1px solid #e5e7eb;
     }
 
     .footer p {
-      color: #666666;
-      font-size: 14px;
-      margin-bottom: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 8px;
     }
 
     .footer a {
-      color: #667eea;
+      color: #1d4ed8;
       text-decoration: none;
     }
 
-    .social-links {
-      margin-top: 20px;
+    .footer a:hover {
+      text-decoration: underline;
     }
 
-    .social-links a {
-      display: inline-block;
-      margin: 0 10px;
-      color: #667eea;
+    .links {
+      margin: 16px 0 8px;
+      font-size: 12px;
+    }
+
+    .links a {
+      color: #6b7280;
       text-decoration: none;
-      font-size: 14px;
+      margin: 0 8px;
+    }
+
+    .links a:hover {
+      color: #1d4ed8;
+    }
+
+    .copyright {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9ca3af;
     }
 
     @media only screen and (max-width: 600px) {
       .content {
-        padding: 30px 20px;
+        padding: 24px 20px;
       }
 
       .otp-code {
-        font-size: 36px;
-        letter-spacing: 6px;
+        font-size: 32px;
+        letter-spacing: 4px;
+      }
+
+      .header h1 {
+        font-size: 24px;
       }
     }
   </style>
@@ -156,56 +172,49 @@
     <!-- Header -->
     <div class="header">
       <h1>Kinmel</h1>
-      <p>Your Premium Shopping Destination</p>
     </div>
 
     <!-- Content -->
     <div class="content">
-      <p class="greeting">Hello <%= name %>,</p>
+      <p class="greeting">Hi <%= name %>,</p>
 
       <p class="message">
-        Thank you for choosing Kinmel! To complete your registration and verify your email address,
-        please use the One-Time Password (OTP) below:
+        Welcome to Kinmel! Please verify your email address to complete your registration.
       </p>
 
       <!-- OTP Box -->
       <div class="otp-container">
-        <div class="otp-label">Your Verification Code</div>
-        <div class="otp-code">
-          <%= otp %>
-        </div>
-        <div class="expiry-notice">This code will expire in 5 minutes</div>
+        <div class="otp-label">Verification Code</div>
+        <div class="otp-code"><%= otp %></div>
+        <div class="expiry-notice">Expires in 5 minutes</div>
       </div>
 
       <p class="message">
-        Enter this code in the verification page to activate your account and start shopping with us.
+        Enter this code on the verification page to activate your account.
       </p>
 
-      <!-- Warning -->
-      <div class="warning">
+      <!-- Security Notice -->
+      <div class="info-box">
         <p>
-          <strong>Security Notice:</strong> If you didn't request this code, please ignore this email.
-          Never share your OTP with anyone, including Kinmel staff.
+          <strong>Security tip:</strong> Never share this code with anyone. Kinmel will never ask for your verification code.
         </p>
       </div>
-
-      <p class="message">
-        Need help? Feel free to reach out to our support team at any time.
-      </p>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-      <p><strong>Kinmel</strong> - Your trusted e-commerce partner</p>
+      <p><strong>Kinmel</strong></p>
       <p>Questions? Contact us at <a href="mailto:support@kinmel.com">support@kinmel.com</a></p>
 
-      <div class="social-links">
-        <a href="#">Privacy Policy</a> |
-        <a href="#">Terms of Service</a> |
-        <a href="#">Contact Us</a>
+      <div class="links">
+        <a href="#">Privacy Policy</a>
+        <span style="color: #d1d5db;">|</span>
+        <a href="#">Terms of Service</a>
+        <span style="color: #d1d5db;">|</span>
+        <a href="#">Help Center</a>
       </div>
 
-      <p style="margin-top: 20px; font-size: 12px; color: #999999;">
+      <p class="copyright">
         &copy; <%= new Date().getFullYear() %> Kinmel. All rights reserved.
       </p>
     </div>
