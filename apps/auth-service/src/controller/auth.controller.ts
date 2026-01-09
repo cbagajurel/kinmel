@@ -15,6 +15,7 @@ import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import { redisClient } from "@packages/lib/redis";
+import { disconnect } from "process";
 
 // User Registration
 export const userRegistration = async (
@@ -276,6 +277,116 @@ export const resetUserPassword = async (
     await redisClient.del(`password_reset_token:${email}`);
 
     res.status(200).json({ message: "Password reset successfully!" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Register Seller
+export const registerSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    validateRegistrationData(req.body, "seller");
+    const { name, email } = req.body;
+
+    const exisitingSeller = await prismaClient.sellers.findUnique({
+      where: { email },
+    });
+
+    if (exisitingSeller) {
+      throw new ValidationError("Seller already exists with this email!");
+    }
+
+    await checkOtpRestriction(email, next);
+    await trackOtpRequests(email, next);
+    await sendOtp(name, email, "seller-activation");
+
+    res
+      .status(200)
+      .json({ message: "OTP sent to email. Please verify your account." });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Verify seller with otp
+export const verifySeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp, password, name, phone_number, country } = req.body;
+    if (!email || !otp || !password || !name || !phone_number || !country) {
+    }
+
+    const exisitingSeller = await prismaClient.sellers.findUnique({
+      where: { email },
+    });
+
+    if (exisitingSeller) {
+      return next(
+        new ValidationError("Seller already exists with this email!")
+      );
+    }
+    await verifyOtp(email, otp, next);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const seller = await prismaClient.sellers.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        country,
+        phone_number,
+      },
+    });
+
+    res
+      .status(201)
+      .json({ seller, message: "Seller registered Successfully! " });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Create shop
+export const createShop = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, bio, address, opening_hours, website, category, sellerId } =
+      req.body;
+
+    if (!name || !bio || !address || !sellerId || !opening_hours || !category) {
+      return next(new ValidationError("All Fields are required"));
+    }
+
+    const shopData: any = {
+      name,
+      bio,
+      address,
+      opening_hours,
+      category,
+      sellerId,
+    };
+
+    if (website && website.trim() !== " ") {
+      shopData.website = website;
+    }
+
+    const shop = await prismaClient.shops.create({
+      data: shopData,
+    });
+    res.status(201).json({
+      success: true,
+      shop,
+      message: "Shop create Successfully!",
+    });
   } catch (error) {
     next(error);
   }

@@ -188,6 +188,12 @@ const SignUp = () => {
                     value: /^\+?[0-9\s()-]{10,20}$/,
                     message: "Invalid phone number format",
                   },
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(
+                      /[^0-9+\s()-]/g,
+                      ""
+                    );
+                  },
                 }}
               />
 
@@ -228,7 +234,6 @@ const SignUp = () => {
                 }}
               />
             </div>
-
             <button
               disabled={signupMutation.isPending}
               type="submit"
@@ -244,6 +249,12 @@ const SignUp = () => {
                     signupMutation.error.message}
                 </p>
               )}
+            <p className="pt-3 text-center">
+              Already have an account?{" "}
+              <Link href={"/login"} className="text-blue-700">
+                Login
+              </Link>
+            </p>
           </form>
         ) : (
           <div>
