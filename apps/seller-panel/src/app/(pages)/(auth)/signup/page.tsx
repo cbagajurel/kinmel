@@ -10,9 +10,10 @@ import { FormDataType, Input } from "@/app/shared";
 import CustomButton from "@/app/shared/components/button";
 import { countries } from "@/utils/countries";
 import CreateShop from "@/shared/modules/auth/create-shop";
+import { toast } from "sonner";
 
 const SignUp = () => {
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(3);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [showOtp, setShowOtp] = useState(false);
@@ -106,6 +107,20 @@ const SignUp = () => {
   const resendOtp = () => {
     if (sellerData) {
       signupMutation.mutate(sellerData);
+    }
+  };
+
+  const connectStripe = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/connect-stripe`,
+        { sellerId },
+      );
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      toast.error(`${error}`);
     }
   };
 
@@ -318,6 +333,18 @@ const SignUp = () => {
 
         {activeStep == 2 && (
           <CreateShop sellerId={sellerId} setActiveStep={setActiveStep} />
+        )}
+        {activeStep === 3 && (
+          <div className="text-center">
+            <h3 className="font-semibold text-2xl">Withdraw Method</h3>
+            <br />
+            <button
+              className="flex justify-center items-center gap-3 bg-[#334155] m-auto py-2 rounded-lg w-full text-md text-white"
+              onClick={connectStripe}
+            >
+              Connnect Stripe
+            </button>
+          </div>
         )}
       </div>
     </div>

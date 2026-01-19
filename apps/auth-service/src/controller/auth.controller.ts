@@ -15,13 +15,17 @@ import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import { redisClient } from "@packages/lib/redis";
-import { disconnect } from "process";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-12-15.clover",
+});
 
 // User Registration
 export const userRegistration = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     validateRegistrationData(req.body, "user");
@@ -33,7 +37,7 @@ export const userRegistration = async (
 
     if (existingUser) {
       return next(
-        new ValidationError("User already existes with this email. ")
+        new ValidationError("User already existes with this email. "),
       );
     }
 
@@ -53,7 +57,7 @@ export const userRegistration = async (
 export const verifyUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, otp, password, name } = req.body;
@@ -87,7 +91,7 @@ export const verifyUser = async (
 export const loginUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, password } = req.body;
@@ -110,14 +114,14 @@ export const loginUser = async (
       process.env.ACCESS_TOKEN_SECRET as string,
       {
         expiresIn: "15m",
-      }
+      },
     );
     const refreshToken = jwt.sign(
       { id: user.id, role: "user" },
       process.env.REFRESH_TOKEN_SECRET as string,
       {
         expiresIn: "7d",
-      }
+      },
     );
 
     //store the refresh and access token in an httpOnly secure cookie
@@ -137,7 +141,7 @@ export const loginUser = async (
 export const refreshToken = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const refreshToken = req.cookies.refresh_token;
@@ -146,7 +150,7 @@ export const refreshToken = async (
     }
     const decoded = jwt.verify(
       refreshToken,
-      process.env.REFRESH_TOKEN_SECRET as string
+      process.env.REFRESH_TOKEN_SECRET as string,
     ) as { id: string; role: string };
 
     if (!decoded || !decoded.id || !decoded.role) {
@@ -165,7 +169,7 @@ export const refreshToken = async (
     const newAsccessToken = jwt.sign(
       { id: decoded.id, role: decoded.role },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     setCookie(res, "access_token", newAsccessToken);
@@ -193,7 +197,7 @@ export const getUser = async (req: any, res: Response, next: NextFunction) => {
 export const userForgotPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;
@@ -211,7 +215,7 @@ export const userForgotPassword = async (
 export const verifyUserForgotPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, otp } = req.body;
@@ -230,7 +234,7 @@ export const verifyUserForgotPassword = async (
 export const resetUserPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, newPassword, resetToken } = req.body;
@@ -238,8 +242,8 @@ export const resetUserPassword = async (
     if (!email || !newPassword || !resetToken)
       return next(
         new ValidationError(
-          "Email, new password, and reset token are required!"
-        )
+          "Email, new password, and reset token are required!",
+        ),
       );
 
     const storedToken = await redisClient.get(`password_reset_token:${email}`);
@@ -247,8 +251,8 @@ export const resetUserPassword = async (
     if (!storedToken || storedToken !== resetToken) {
       return next(
         new ValidationError(
-          "Invalid or expired reset token! Please request a new password reset."
-        )
+          "Invalid or expired reset token! Please request a new password reset.",
+        ),
       );
     }
 
@@ -260,8 +264,8 @@ export const resetUserPassword = async (
     if (isSamePassword) {
       return next(
         new ValidationError(
-          "New password cannot be the same as the old password!"
-        )
+          "New password cannot be the same as the old password!",
+        ),
       );
     }
 
@@ -282,11 +286,72 @@ export const resetUserPassword = async (
   }
 };
 
+// seller login
+export const loginSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password)
+      return next(new ValidationError("Email and password are required!"));
+    const seller = await prismaClient.sellers.findUnique({ where: { email } });
+    if (!seller) return next(new ValidationError("Invalid email or Password"));
+
+    //verify password
+    const isMatch = await bcrypt.compare(password, seller.password);
+    if (!isMatch)
+      return next(new ValidationError("Invalid email or password!"));
+
+    const accessToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "15m" },
+    );
+
+    const refreshToken = jwt.sign(
+      { id: seller.id, role: "seller" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "7d" },
+    );
+
+    // store refresh token and access token
+    setCookie(res, "seller-refresh-token", refreshToken);
+    setCookie(res, "seller-access-token", accessToken);
+
+    res.status(200).json({
+      message: "Login Successful!",
+      seller: { id: seller.id, email: seller.email, name: seller.name },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// get logged in seller
+export const getSeller = async (
+  req: any,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const seller = req.seller;
+    res.status(201).json({
+      success: true,
+      seller,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Register Seller
 export const registerSeller = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     validateRegistrationData(req.body, "seller");
@@ -316,7 +381,7 @@ export const registerSeller = async (
 export const verifySeller = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, otp, password, name, phone_number, country } = req.body;
@@ -329,7 +394,7 @@ export const verifySeller = async (
 
     if (exisitingSeller) {
       return next(
-        new ValidationError("Seller already exists with this email!")
+        new ValidationError("Seller already exists with this email!"),
       );
     }
     await verifyOtp(email, otp, next);
@@ -356,7 +421,7 @@ export const verifySeller = async (
 export const createShop = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { name, bio, address, opening_hours, website, category, sellerId } =
@@ -389,5 +454,52 @@ export const createShop = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const createStripeConnectLink = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { sellerId } = req.body;
+    if (!sellerId) return next(new ValidationError("Seller ID is required!"));
+
+    const seller = await prismaClient.sellers.findUnique({
+      where: {
+        id: sellerId,
+      },
+    });
+    if (!seller) {
+      return next(new ValidationError("Seller is not available with this id!"));
+    }
+    const account = await stripe.accounts.create({
+      type: "express",
+      email: seller?.email,
+      country: "NP",
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+    await prismaClient.sellers.update({
+      where: {
+        id: sellerId,
+      },
+      data: {
+        stripeId: account.id,
+      },
+    });
+
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: `http://localhost:3000/success`,
+      return_url: `http://localhost:3000/success`,
+      type: "account_onboarding",
+    });
+    res.json({ url: accountLink.url });
+  } catch (error) {
+    return next(error);
   }
 };
