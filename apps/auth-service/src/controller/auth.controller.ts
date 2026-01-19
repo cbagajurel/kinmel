@@ -17,9 +17,7 @@ import { setCookie } from "../utils/cookies/setCookie";
 import { redisClient } from "@packages/lib/redis";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-12-15.clover",
-});
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY!);
 
 // User Registration
 export const userRegistration = async (
@@ -477,7 +475,7 @@ export const createStripeConnectLink = async (
     const account = await stripe.accounts.create({
       type: "express",
       email: seller?.email,
-      country: "NP",
+      country: "US",
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
@@ -500,6 +498,7 @@ export const createStripeConnectLink = async (
     });
     res.json({ url: accountLink.url });
   } catch (error) {
+    console.error("Stripe Connect Error:", error);
     return next(error);
   }
 };

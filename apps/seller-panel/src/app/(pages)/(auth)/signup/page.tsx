@@ -13,9 +13,8 @@ import CreateShop from "@/shared/modules/auth/create-shop";
 import { toast } from "sonner";
 
 const SignUp = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(1);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
   const [showOtp, setShowOtp] = useState(false);
   const [canResend, setCanResend] = useState(true);
 
@@ -111,6 +110,7 @@ const SignUp = () => {
   };
 
   const connectStripe = async () => {
+    console.log("Connecting Stripe with sellerId:", sellerId);
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/connect-stripe`,

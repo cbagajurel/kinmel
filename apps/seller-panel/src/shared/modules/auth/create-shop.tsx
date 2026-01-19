@@ -20,7 +20,7 @@ const CreateShop = ({
   } = useForm();
 
   const shopCreateMutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: Record<string, any>) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-shop`,
         data,
@@ -92,7 +92,10 @@ const CreateShop = ({
           type="text"
           register={register}
           errors={errors}
-          name="address"
+          name="opening_hours"
+          rules={{
+            required: "Opening Hours is Required!",
+          }}
           placeholder="Eg. Sun-Fri 9AM - 6PM"
         />
         <Input
@@ -119,17 +122,22 @@ const CreateShop = ({
         >
           <option value="">Select a category</option>
           {shopCategories.map((category) => (
-            <option value="" key={category.value}>
+            <option value={category.value} key={category.value}>
               {category.label}
             </option>
           ))}
-          {errors.category && (
-            <p className="mt-1 text-red-500 text-sm">
-              {String(errors.category.message)}
-            </p>
-          )}
         </select>
-        <Button label={"Create Shop"} type="submit" />
+        {errors.category && (
+          <p className="mt-1 text-red-500 text-sm">
+            {String(errors.category.message)}
+          </p>
+        )}
+
+        <Button
+          disabled={shopCreateMutation.isPending}
+          label={shopCreateMutation.isPending ? "Creating....." : "Create Shop"}
+          type="submit"
+        />
       </form>
     </div>
   );
