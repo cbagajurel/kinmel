@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { FormDataType, Input } from "@/app/shared";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -22,14 +23,16 @@ const LoginPage = () => {
   const loginMutation = useMutation({
     mutationFn: async (data: FormDataType) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/login`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-seller`,
         data,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       return response.data;
     },
     onSuccess: (data) => {
-      setServerError(null), router.push("/");
+      (toast.success("Logged in Successfully!"),
+        setServerError(null),
+        router.push("/"));
     },
     onError: (error: AxiosError) => {
       const errorMessage =

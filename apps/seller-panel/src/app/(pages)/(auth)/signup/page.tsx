@@ -17,6 +17,7 @@ const SignUp = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [canResend, setCanResend] = useState(true);
+  const [isStripePending, setIsStripePending] = useState(false);
 
   const [timer, setTimer] = useState(60);
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -111,6 +112,7 @@ const SignUp = () => {
 
   const connectStripe = async () => {
     console.log("Connecting Stripe with sellerId:", sellerId);
+    setIsStripePending(true);
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/connect-stripe`,
@@ -120,7 +122,13 @@ const SignUp = () => {
         window.location.href = response.data.url;
       }
     } catch (error) {
-      toast.error(`${error}`);
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || error.message);
+      } else {
+        toast.error("Failed to connect Stripe");
+      }
+    } finally {
+      setIsStripePending(false);
     }
   };
 
@@ -342,8 +350,18 @@ const SignUp = () => {
               className="flex justify-center items-center gap-3 bg-[#334155] m-auto py-2 rounded-lg w-full text-md text-white"
               onClick={connectStripe}
             >
-              Connnect Stripe
+              {isStripePending ? "Connecting...." : "Connnect Stripe"}
             </button>
+
+            <p className="mt-5 text-sm">
+              Getting Error?{" "}
+              <Link
+                href={"/login"}
+                className="text-blue-700 hover:underline cursor-pointer"
+              >
+                Connect Later
+              </Link>
+            </p>
           </div>
         )}
       </div>
