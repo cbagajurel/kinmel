@@ -1,16 +1,20 @@
+import Link from "next/link";
 import React from "react";
 
 const SidebarItems = ({
   label,
   isActive,
   icon,
+  href,
 }: {
   label: string;
   isActive: boolean;
   icon: React.ReactNode;
+  href: string;
 }) => {
   return (
-    <div
+    <Link
+      href={href}
       className={`px-4 py-3 rounded-md flex items-center gap-3 cursor-pointer transition-colors ${
         isActive
           ? "bg-blue-800/40 hover:bg-blue-800/35"
@@ -19,7 +23,7 @@ const SidebarItems = ({
     >
       {icon}
       <p className="text-sm">{label}</p>
-    </div>
+    </Link>
   );
 };
 

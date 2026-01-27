@@ -34,6 +34,6 @@ router.post("/verify-seller", verifySeller);
 router.post("/create-shop", createShop);
 router.post("/connect-stripe", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
-router.post("/seller-details", checkAuthentication, isSeller, getSeller);
+router.get("/seller-details", checkAuthentication, isSeller, getSeller);
 
 export default router;

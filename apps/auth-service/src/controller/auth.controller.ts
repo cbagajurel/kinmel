@@ -12,7 +12,7 @@ import prismaClient from "@packages/lib/prisma";
 import { AuthError, ValidationError } from "@packages/error-handler";
 import bycript from "bcryptjs";
 import bcrypt from "bcryptjs";
-import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import { redisClient } from "@packages/lib/redis";
 import Stripe from "stripe";
@@ -137,14 +137,17 @@ export const loginUser = async (
 
 //refresh token user
 export const refreshToken = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken =
+      req.cookies["refresh_token"] ||
+      req.cookies["seller_refresh_token"] ||
+      req.headers.authorization?.split(" ")[1];
     if (!refreshToken) {
-      return new ValidationError("Unauthorized! NO refresh token.");
+      return next(new ValidationError("Unauthorized! No refresh token."));
     }
     const decoded = jwt.verify(
       refreshToken,
@@ -152,17 +155,25 @@ export const refreshToken = async (
     ) as { id: string; role: string };
 
     if (!decoded || !decoded.id || !decoded.role) {
-      return new JsonWebTokenError("Forbidden! Invalid refresh token");
+      return next(new AuthError("Forbidden! Invalid refresh token"));
     }
-    // let account;
+    let account;
 
-    // if (decoded.role === "user") {
-    const user = await prismaClient.users.findUnique({
-      where: { id: decoded.id },
-    });
-    // }
-    if (!user) {
-      return new AuthError("Forbidden! User/Seller not founds");
+    if (decoded.role === "user") {
+      account = await prismaClient.users.findUnique({
+        where: { id: decoded.id },
+      });
+      req.user = account;
+    } else if (decoded.role === "seller") {
+      account = await prismaClient.sellers.findUnique({
+        where: { id: decoded.id },
+        include: { shop: true },
+      });
+      req.seller = account;
+    }
+
+    if (!account) {
+      return next(new AuthError("Forbidden! User/Seller not found"));
     }
     const newAsccessToken = jwt.sign(
       { id: decoded.id, role: decoded.role },
@@ -170,7 +181,11 @@ export const refreshToken = async (
       { expiresIn: "15m" },
     );
 
-    setCookie(res, "access_token", newAsccessToken);
+    if (decoded.role === "user") {
+      setCookie(res, "access_token", newAsccessToken);
+    } else if (decoded.role == "seller") {
+      setCookie(res, "seller_access_token", newAsccessToken);
+    }
 
     return res.status(201).json({ success: true });
   } catch (error) {
@@ -316,8 +331,8 @@ export const loginSeller = async (
     );
 
     // store refresh token and access token
-    setCookie(res, "seller-refresh-token", refreshToken);
-    setCookie(res, "seller-access-token", accessToken);
+    setCookie(res, "seller_refresh_token", refreshToken);
+    setCookie(res, "seller_access_token", accessToken);
 
     res.status(200).json({
       message: "Login Successful!",
